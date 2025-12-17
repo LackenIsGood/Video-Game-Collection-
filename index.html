@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Collection | Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dark-mode.css" id="dark-mode-style">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Additional CSS for dashboard */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: var(--transition);
+            border-top: 5px solid var(--primary-color);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .stat-card.total-games {
+            border-top-color: var(--primary-color);
+        }
+        
+        .stat-card.total-value {
+            border-top-color: var(--success-color);
+        }
+        
+        .stat-card.top-platform {
+            border-top-color: var(--accent-color);
+        }
+        
+        .stat-card.wishlist-count {
+            border-top-color: var(--warning-color);
+        }
+        
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+        }
+        
+        .stat-card.total-value .stat-icon {
+            background: linear-gradient(135deg, var(--success-color), #00d8a7);
+        }
+        
+        .stat-card.top-platform .stat-icon {
+            background: linear-gradient(135deg, var(--accent-color), #00e5d4);
+        }
+        
+        .stat-card.wishlist-count .stat-icon {
+            background: linear-gradient(135deg, var(--warning-color), #ffd573);
+        }
+        
+        .stat-info h3 {
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+            color: var(--text-color);
+        }
+        
+        .stat-info p {
+            color: var(--text-secondary);
+            margin: 0;
+            font-size: 0.95rem;
+        }
+        
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .chart-container {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            height: 400px;
+        }
+        
+        .chart-container h3 {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .chart-container h3 i {
+            color: var(--primary-color);
+        }
+        
+        .recent-games {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 40px;
+        }
+        
+        .recent-games h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        
+        .game-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+        }
+        
+        .game-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .game-image {
+            height: 250px;
+            width: 100%;
+            background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+        
+        .game-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .game-info {
+            padding: 20px;
+        }
+        
+        .game-title {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            color: var(--text-color);
+        }
+        
+        .game-platform {
+            display: inline-block;
+            padding: 4px 10px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+        }
+        
+        .game-details {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        
+        .quick-stat {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+        }
+        
+        .quick-stat h4 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .progress-bar {
+            height: 12px;
+            background-color: var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        .condition-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .condition-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .condition-item:last-child {
+            border-bottom: none;
+        }
+        
+        .condition-label {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .condition-label.new {
+            background-color: rgba(0, 184, 148, 0.1);
+            color: #00b894;
+            border: 1px solid #00b894;
+        }
+        
+        .condition-label.used {
+            background-color: rgba(253, 203, 110, 0.1);
+            color: #d69c1a;
+            border: 1px solid #fdcb6e;
+        }
+        
+        .condition-count {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .decade-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .decade-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .decade-label {
+            width: 60px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        .decade-bar {
+            flex: 1;
+            height: 8px;
+            background-color: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .decade-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .decade-count {
+            width: 30px;
+            text-align: right;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--border-color);
+            margin-bottom: 20px;
+        }
+        
+        .empty-state p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-container {
+                height: 350px;
+            }
+            
+            .games-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            }
+            
+            .quick-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stat-card {
+                flex-direction: column;
+                text-align: center;
+                padding: 20px;
+            }
+            
+            .stat-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+            
+            .stat-info h3 {
+                font-size: 1.8rem;
+            }
+            
+            .charts-section {
+                gap: 20px;
+            }
+            
+            .chart-container {
+                padding: 20px;
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Toggle -->
+    <div class="theme-toggle">
+        <button id="theme-toggle-btn" class="btn-toggle">
+            <i class="fas fa-moon"></i> Dark Mode
+        </button>
+    </div>
+
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-gamepad"></i>
+                <h1>Game Collection Catalog</h1>
+            </div>
+            <nav class="main-nav">
+                <a href="index.html" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <a href="catalog.html"><i class="fas fa-th"></i> Catalog</a>
+                <a href="add-game.html"><i class="fas fa-plus-circle"></i> Add Game</a>
+                <a href="wishlist.html"><i class="fas fa-star"></i> Wishlist</a>
+                <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+            </nav>
+            <button class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <main class="container">
+        <div class="dashboard-header">
+            <h2><i class="fas fa-tachometer-alt"></i> Collection Dashboard</h2>
+            <p>Overview of your video game collection</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card total-games">
+                <div class="stat-icon">
+                    <i class="fas fa-gamepad"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="total-games">0</h3>
+                    <p>Total Games</p>
+                </div>
+            </div>
+            
+            <div class="stat-card total-value">
+                <div class="stat-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="total-value">$0</h3>
+                    <p>Collection Value</p>
+                </div>
+            </div>
+            
+            <div class="stat-card top-platform">
+                <div class="stat-icon">
+                    <i class="fas fa-tv"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="top-platform">-</h3>
+                    <p>Top Platform</p>
+                </div>
+            </div>
+            
+            <div class="stat-card wishlist-count">
+                <div class="stat-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="wishlist-count">0</h3>
+                    <p>Wishlist Items</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <div class="chart-container">
+                <h3><i class="fas fa-chart-pie"></i> Games by Platform</h3>
+                <canvas id="platform-chart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <h3><i class="fas fa-chart-pie"></i> Games by Genre</h3>
+                <canvas id="genre-chart"></canvas>
+            </div>
+        </div>
+
+        <!-- Recent Additions -->
+        <div class="recent-games">
+            <h3><i class="fas fa-history"></i> Recently Added Games</h3>
+            <div class="games-grid" id="recent-games">
+                <!-- Games will be loaded dynamically -->
+                <div class="empty-state">
+                    <i class="fas fa-gamepad"></i>
+                    <p>No games in your collection yet. <a href="add-game.html">Add your first game!</a></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+            <div class="quick-stat">
+                <h4><i class="fas fa-compact-disc"></i> Physical vs Digital</h4>
+                <div class="progress-bar">
+                    <div class="progress-fill physical-progress" id="physical-progress"></div>
+                </div>
+                <div class="progress-labels">
+                    <span>Physical: <span id="physical-count">0</span></span>
+                    <span>Digital: <span id="digital-count">0</span></span>
+                </div>
+            </div>
+            
+            <div class="quick-stat">
+                <h4><i class="fas fa-box-open"></i> Condition</h4>
+                <div class="condition-stats">
+                    <div class="condition-item">
+                        <span class="condition-label new">New</span>
+                        <span class="condition-count" id="new-count">0</span>
+                    </div>
+                    <div class="condition-item">
+                        <span class="condition-label used">Used</span>
+                        <span class="condition-count" id="used-count">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="quick-stat">
+                <h4><i class="fas fa-calendar-alt"></i> By Release Decade</h4>
+                <div class="decade-stats" id="decade-stats">
+                    <!-- Will be filled by JS -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>Game Collection Catalog &copy; <span id="current-year"></span> | Track your gaming journey!</p>
+            <div class="footer-links">
+                <a href="#"><i class="fab fa-github"></i> GitHub</a>
+                <a href="#"><i class="fas fa-question-circle"></i> Help</a>
+                <a href="#"><i class="fas fa-envelope"></i> Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/app.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
